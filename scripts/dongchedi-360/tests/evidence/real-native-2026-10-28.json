@@ -1,0 +1,80 @@
+{
+  "url": "https://www.dongchedi.com/auto/series/18",
+  "title": "【大切诺基(进口)】Jeep_大切诺基(进口)报价_大切诺基(进口)图片_懂车帝",
+  "frames": 36,
+  "initial": 2,
+  "results": [
+    {
+      "key": "front",
+      "target": 5,
+      "actual": 5,
+      "outcome": {
+        "ok": true
+      }
+    },
+    {
+      "key": "frontRight",
+      "target": 9,
+      "actual": 9,
+      "outcome": {
+        "ok": true
+      }
+    },
+    {
+      "key": "right",
+      "target": 14,
+      "actual": 14,
+      "outcome": {
+        "ok": true
+      }
+    },
+    {
+      "key": "rearRight",
+      "target": 19,
+      "actual": 19,
+      "outcome": {
+        "ok": true
+      }
+    },
+    {
+      "key": "rear",
+      "target": 23,
+      "actual": 23,
+      "outcome": {
+        "ok": true
+      }
+    },
+    {
+      "key": "rearLeft",
+      "target": 27,
+      "actual": 27,
+      "outcome": {
+        "ok": true
+      }
+    },
+    {
+      "key": "left",
+      "target": 32,
+      "actual": 32,
+      "outcome": {
+        "ok": true
+      }
+    },
+    {
+      "key": "frontLeft",
+      "target": 1,
+      "actual": 1,
+      "outcome": {
+        "ok": true
+      }
+    }
+  ],
+  "beforeContinuation": 1,
+  "afterContinuation": 2,
+  "restored": {
+    "ok": true
+  },
+  "final": 2,
+  "overlayCount": 0,
+  "publicationNote": "公开版本已移除 URL 查询参数及锚点；其余测试数据保留。"
+}

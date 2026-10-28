@@ -1,0 +1,31 @@
+# Dependencies and generated output, in every script directory
+**/node_modules/
+**/test-results/
+**/playwright-report/
+**/coverage/
+**/.cache/
+**/dist/
+**/tmp/
+**/temp/
+
+# Local configuration, credentials and logs
+**/.env
+**/.env.*
+*.log
+*.tsbuildinfo
+.npmrc
+
+# Browser profiles and test authentication state
+**/playwright/.auth/
+**/browser-profile/
+**/.auth/
+
+# Editor and operating system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~

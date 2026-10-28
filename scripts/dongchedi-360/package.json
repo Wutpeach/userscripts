@@ -1,0 +1,13 @@
+{
+  "name": "dongchedi-360",
+  "version": "1.1.5",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/assistant.test.cjs",
+    "check": "node --check dongchedi-360.user.js"
+  },
+  "devDependencies": {
+    "jszip": "3.10.1",
+    "playwright-core": "1.58.2"
+  }
+}

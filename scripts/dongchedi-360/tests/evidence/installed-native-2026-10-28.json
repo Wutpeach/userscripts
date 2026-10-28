@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-28T06:11:37.018Z",
+  "url": "https://www.dongchedi.com/auto/series/18",
+  "installedUserscript": true,
+  "nativeControllerSha256": "fceb926191a285ee7f64814c9535c58f755ba0830e6e8bcff3e03e085d2f84f9",
+  "initial": 2,
+  "results": [
+    {
+      "key": "front",
+      "expected": 5,
+      "actual": 5
+    },
+    {
+      "key": "frontRight",
+      "expected": 9,
+      "actual": 9
+    },
+    {
+      "key": "right",
+      "expected": 14,
+      "actual": 14
+    },
+    {
+      "key": "rearRight",
+      "expected": 19,
+      "actual": 19
+    },
+    {
+      "key": "rear",
+      "expected": 23,
+      "actual": 23
+    },
+    {
+      "key": "rearLeft",
+      "expected": 27,
+      "actual": 27
+    },
+    {
+      "key": "left",
+      "expected": 32,
+      "actual": 32
+    },
+    {
+      "key": "frontLeft",
+      "expected": 1,
+      "actual": 1
+    }
+  ],
+  "afterDrag": 2,
+  "trustedEvents": [
+    {
+      "type": "mousemove",
+      "trusted": true
+    },
+    {
+      "type": "mousedown",
+      "trusted": true
+    },
+    {
+      "type": "mouseup",
+      "trusted": true
+    }
+  ],
+  "downloadMenu": true,
+  "currentDownloadEnabled": true,
+  "sandboxProbe": {
+    "ok": false,
+    "error": "Failed to construct 'MouseEvent': Failed to read the 'view' property from 'UIEventInit': Failed to convert value to 'Window'."
+  },
+  "publicationNote": "公开版本已移除 URL 查询参数及锚点；其余测试数据保留。"
+}

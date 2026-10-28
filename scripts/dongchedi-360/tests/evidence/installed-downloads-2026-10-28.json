@@ -1,0 +1,237 @@
+{
+  "date": "2026-10-28T06:11:25.275Z",
+  "url": "https://www.dongchedi.com/auto/series/18",
+  "installedUserscript": true,
+  "results": [
+    {
+      "kind": "current",
+      "name": "懂车帝车辆_002.webp",
+      "size": 40418,
+      "sha256": "d79089d4dbeef5b0d16730a7887667a7847bf7f701d765e55a9f704118fd6675",
+      "files": [
+        {
+          "name": "002.webp",
+          "sha256": "d79089d4dbeef5b0d16730a7887667a7847bf7f701d765e55a9f704118fd6675"
+        }
+      ]
+    },
+    {
+      "kind": "four",
+      "name": "懂车帝车辆_四个标准视角.zip",
+      "size": 148602,
+      "sha256": "877bcc0b18895202fbf04a0dc52b4277accb6e03127bd90e2d31988a33da8943",
+      "files": [
+        {
+          "name": "005.webp",
+          "sha256": "415a48fab70f08929fe339c3bca64f0910c4d0c5489584be1096baccc0a17373"
+        },
+        {
+          "name": "014.webp",
+          "sha256": "41bbb53cdf7cdbdb2a2272934d53337a5b2922972e7dea1f9eb9d06b9d47e0a5"
+        },
+        {
+          "name": "023.webp",
+          "sha256": "dcbc1a8664a9b16c6eba40386b9ca54f1a6ef2feefa248b629b27b4a13c018f3"
+        },
+        {
+          "name": "032.webp",
+          "sha256": "9189c53621e43d62696042de6a110455f9048fd488479f4a81b9ff68f6fb1ddf"
+        }
+      ]
+    },
+    {
+      "kind": "eight",
+      "name": "懂车帝车辆_八个预设视角.zip",
+      "size": 324412,
+      "sha256": "46e2c5ec4a18a5b037da6fc3ffcdc5d85cec044f094ae3328e6364616b518cb9",
+      "files": [
+        {
+          "name": "005.webp",
+          "sha256": "415a48fab70f08929fe339c3bca64f0910c4d0c5489584be1096baccc0a17373"
+        },
+        {
+          "name": "009.webp",
+          "sha256": "f99448722bc03dfad06d036cd5e48c64ddaddbe7f4375c373b53b704df2d1845"
+        },
+        {
+          "name": "014.webp",
+          "sha256": "41bbb53cdf7cdbdb2a2272934d53337a5b2922972e7dea1f9eb9d06b9d47e0a5"
+        },
+        {
+          "name": "019.webp",
+          "sha256": "8660555c3fe45a1d9ca273bab19701306fc1f9431e25115c1a02b31c2b165e4a"
+        },
+        {
+          "name": "023.webp",
+          "sha256": "dcbc1a8664a9b16c6eba40386b9ca54f1a6ef2feefa248b629b27b4a13c018f3"
+        },
+        {
+          "name": "027.webp",
+          "sha256": "b2ee2078fae5d058917930d5a4f0d11d83da7bb5a220295102e1a000026f98e4"
+        },
+        {
+          "name": "032.webp",
+          "sha256": "9189c53621e43d62696042de6a110455f9048fd488479f4a81b9ff68f6fb1ddf"
+        },
+        {
+          "name": "001.webp",
+          "sha256": "ab7fd06fea7649ac77711d8a2ae3e1b704c7fd5c58edb81eb066710b2d07d434"
+        }
+      ]
+    },
+    {
+      "kind": "all",
+      "name": "懂车帝车辆_360.zip",
+      "size": 1535484,
+      "sha256": "7c5e6cbb0a5e3840646976055f636cdd69ed11961056d2f0ff23db53f2504c0d",
+      "files": [
+        {
+          "name": "001.webp",
+          "sha256": "ab7fd06fea7649ac77711d8a2ae3e1b704c7fd5c58edb81eb066710b2d07d434"
+        },
+        {
+          "name": "002.webp",
+          "sha256": "d79089d4dbeef5b0d16730a7887667a7847bf7f701d765e55a9f704118fd6675"
+        },
+        {
+          "name": "003.webp",
+          "sha256": "a69f268fedb28ffc197440010b683c53ef20beb44fb6e441a15704c31459d395"
+        },
+        {
+          "name": "004.webp",
+          "sha256": "38c3f157c817760dd54d03a4db4afedf9435e8ce5aa333c10eee99bd33d3ea33"
+        },
+        {
+          "name": "005.webp",
+          "sha256": "415a48fab70f08929fe339c3bca64f0910c4d0c5489584be1096baccc0a17373"
+        },
+        {
+          "name": "006.webp",
+          "sha256": "29a29328af8375525b637ab41f52eab887d975256493e1de90504e36dac8e8f3"
+        },
+        {
+          "name": "007.webp",
+          "sha256": "7e5ce71cda8196cfc1c6becaa3453fce63fc95d7a2218fffc130c04b0fa65f3f"
+        },
+        {
+          "name": "008.webp",
+          "sha256": "ebf53e0f41e06802587bba1fc2c57cde6e43a74f2dab2917e3ead5fb29310f68"
+        },
+        {
+          "name": "009.webp",
+          "sha256": "f99448722bc03dfad06d036cd5e48c64ddaddbe7f4375c373b53b704df2d1845"
+        },
+        {
+          "name": "010.webp",
+          "sha256": "13db19aa0ddb8c1b95229f620b6bf1e87b1463d92ed33ba90195fb67347c24f7"
+        },
+        {
+          "name": "011.webp",
+          "sha256": "bfb896020d1c928ce03fb9e4bdb33828d748e9063f5f5a788e2b808e7daf7db5"
+        },
+        {
+          "name": "012.webp",
+          "sha256": "cc12491e1c140d6ee10593f8c314167dc750bb5e77199bb515de23485e7d8d88"
+        },
+        {
+          "name": "013.webp",
+          "sha256": "9dd06ed19992992984a14b473cf876806fc2f6bf78113f75b24d150602df0d3a"
+        },
+        {
+          "name": "014.webp",
+          "sha256": "41bbb53cdf7cdbdb2a2272934d53337a5b2922972e7dea1f9eb9d06b9d47e0a5"
+        },
+        {
+          "name": "015.webp",
+          "sha256": "657a5888eee80a5f455d0d8e859e3c31efaf93239e77f3f0bdb1fae1e4da90ab"
+        },
+        {
+          "name": "016.webp",
+          "sha256": "4d771f674495965faea5e44162b05d27dc83241c5901795192b5c9ed1bc39718"
+        },
+        {
+          "name": "017.webp",
+          "sha256": "deb1109683f778a83d4dab34a87c8b5291c7dbe2e92a9400c6a5f4e7390543a9"
+        },
+        {
+          "name": "018.webp",
+          "sha256": "921a06cdf86e58e21da816659670c46370871a8549d114998613fa1f58bdbe5e"
+        },
+        {
+          "name": "019.webp",
+          "sha256": "8660555c3fe45a1d9ca273bab19701306fc1f9431e25115c1a02b31c2b165e4a"
+        },
+        {
+          "name": "020.webp",
+          "sha256": "a4221cd38c8c16aff769c5e7057c2e9fefa00487dfccad7c52ac2f9fbcadf3d7"
+        },
+        {
+          "name": "021.webp",
+          "sha256": "9a12ae27b020129db54ed169ef87090408d40e8319db915a9039d8c9ee2cd67a"
+        },
+        {
+          "name": "022.webp",
+          "sha256": "9e7c00d76819eeb4a20644b43d109e05a55e93fcfc91a302b3e8c51388a9544b"
+        },
+        {
+          "name": "023.webp",
+          "sha256": "dcbc1a8664a9b16c6eba40386b9ca54f1a6ef2feefa248b629b27b4a13c018f3"
+        },
+        {
+          "name": "024.webp",
+          "sha256": "d3e1416e43ac945f1c18369501552bba458e7baffe5cbcc68f623defe1191d03"
+        },
+        {
+          "name": "025.webp",
+          "sha256": "0365b108eb93a087d6cb9a27940f7b4b397d73447671dadeb3f96ad43bdc268f"
+        },
+        {
+          "name": "026.webp",
+          "sha256": "e29727d879f6e33882ce8dadba88f18c78dd55c8070a1ea89ffa52ec7e3e245b"
+        },
+        {
+          "name": "027.webp",
+          "sha256": "b2ee2078fae5d058917930d5a4f0d11d83da7bb5a220295102e1a000026f98e4"
+        },
+        {
+          "name": "028.webp",
+          "sha256": "c32de17347ba41e3b911099bb8279b044af23d8b676424a55a81475ee3467449"
+        },
+        {
+          "name": "029.webp",
+          "sha256": "2a5ed79a204b92cf39407e0304ed8d125f396612945eaefd91651d7a334e4b5f"
+        },
+        {
+          "name": "030.webp",
+          "sha256": "f9d6c28933ac102770a44e3af6e7791f2dda047139e2bed2311589e1e3bbe14e"
+        },
+        {
+          "name": "031.webp",
+          "sha256": "93595ba24c5b51ac86e1d4b35bde86c75610e685c6d3052cbfb49de4d12867cb"
+        },
+        {
+          "name": "032.webp",
+          "sha256": "9189c53621e43d62696042de6a110455f9048fd488479f4a81b9ff68f6fb1ddf"
+        },
+        {
+          "name": "033.webp",
+          "sha256": "72f9b5249ebc4df58f3254541bf33d624228aa854e6cfdeaf36e3aaa5b3c6862"
+        },
+        {
+          "name": "034.webp",
+          "sha256": "5bf50f15dd378d7abb40effbebb993ae05a168192fc90678becfece325dc28c4"
+        },
+        {
+          "name": "035.webp",
+          "sha256": "3ab11f5846d5f5ecd6132bfb31b2b5fa1206617054a438fba6713bf90d1e45ad"
+        },
+        {
+          "name": "036.webp",
+          "sha256": "0fc10a9c5116b2ac349557c06082af5aecd8a9fd717c83378161ea18238fec6d"
+        }
+      ]
+    }
+  ],
+  "crossArchiveHashesMatch": true,
+  "publicationNote": "公开版本已移除 URL 查询参数及锚点；其余测试数据保留。"
+}

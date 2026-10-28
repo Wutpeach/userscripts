@@ -1,8 +1,8 @@
 # 懂车帝 360° 图片助手
 
-**版本 1.1.5** · [一键安装](https://raw.githubusercontent.com/Wutpeach/userscripts/main/scripts/dongchedi-360/dongchedi-360.user.js) · [反馈问题](https://github.com/Wutpeach/userscripts/issues) · [测试报告](TEST_REPORT.md)
+**版本 1.2.0** · [一键安装](https://raw.githubusercontent.com/Wutpeach/userscripts/main/scripts/dongchedi-360/dongchedi-360.user.js) · [反馈问题](https://github.com/Wutpeach/userscripts/issues) · [测试报告](TEST_REPORT.md)
 
-在懂车帝外观 360° 视口的原生「全屏」右侧添加「视角 ▾」「下载 ▾」。支持八个预设方向，以及当前图片、四／八方向和完整 36 帧序列下载。直接控制原生旋转状态，不使用独立预览层；下载保留原始 WebP 数据。
+在懂车帝外观 360° 视口的原生「全屏」右侧添加「视角 ▾」「下载 ▾」「复制」。支持八个预设方向、当前图片复制，以及当前图片、四／八方向和完整 36 帧序列下载。直接控制原生旋转状态，不使用独立预览层；下载保留原始 WebP 数据。
 
 ## 运行环境与安装
 
@@ -20,8 +20,8 @@
 
 ### 视角
 
-- 将鼠标移入原生 360° 视口，等待完整序列及工具栏加载，两个按钮会出现在原生「全屏」右侧。
-- 悬浮约 150ms 展开面板；点击一级按钮固定展开，再次点击关闭。点击外部或按 Esc 关闭；两个面板互斥。
+- 将鼠标移入原生 360° 视口，等待完整序列及工具栏加载，三个按钮会出现在原生「全屏」右侧。
+- 悬浮「视角」「下载」约 150ms 展开面板；点击一级按钮固定展开，再次点击关闭。点击外部或按 Esc 关闭；两个面板互斥。「复制」直接执行操作，没有下拉面板。
 - 视角面板只显示九宫格。点击外围方向切换对应帧，中间图标为装饰，当前匹配方向轻微高亮。
 - 用户开始拖拽、移入视口或按键时中断自动切换，由原生交互接管。切换过程中暂时禁用「下载当前视角」。
 
@@ -33,6 +33,14 @@
 | 后左45°：27 | 正后方：23 | 后右45°：19 |
 
 四个标准方向最初由用户在奥迪 A6L 上验证，用户随后反馈其他车型也可使用。开发环境的独立真站验证使用 Jeep 页面，具体范围见测试报告。方向映射集中于 VIEW_PRESETS；其他车型如果存在起点偏移，需要另行校准。斜向使用接近 45° 的原始帧，不生成插值图片。
+
+### 复制
+
+- 点击「下载」右侧的「复制」，将点击时显示的当前帧写入系统剪贴板，可粘贴到支持图片的应用；复制的是图片本身，不是链接或视口截图。
+- 为兼容常见应用，复制时将原始 WebP 在本地转换为 PNG，保留原始尺寸及透明度。下载仍保留原始 WebP 字节。
+- 按钮显示「复制中…」→「已复制」，约 1.6 秒后恢复，不另弹成功提示；失败时显示原因。自动切换视角、当前帧不明确或已有复制任务时禁用按钮。
+- 操作固定点击时的图片 URL，之后旋转不会改换本次图片；车型、颜色、路由或视口变化时中止尚在准备的复制。
+- 需要浏览器支持 Clipboard API 和 PNG 图片写入；如提示，请允许剪贴板访问。保持页面在前台，失败后可重试或使用下载功能；目标应用是否接受图片取决于其粘贴支持。
 
 ### 下载
 
@@ -57,7 +65,7 @@
 ## 界面展示
 
 ~~~text
-全屏 | 视角 ▾ | 下载 ▾
+全屏 | 视角 ▾ | 下载 ▾ | 复制
 ~~~
 
 视角为八方向九宫格，下载面板提供上述四项操作。目前没有收录适合公开发布的页面截图；assets/ 只保存维护所需的 Lucide 官方图标源文件，不包含下载的车辆图片或整套序列。
@@ -86,7 +94,7 @@ npm test
 
 开发测试需要 Node.js 22 或更新版本及桌面 Edge。测试默认使用 Windows 的常规 Edge 安装位置；如果路径不同，通过 DCD360_BROWSER 指定浏览器可执行文件。JSZip 3.10.1 和 playwright-core 1.58.2 为固定版本的开发依赖，前者只用作独立 ZIP 读取器，后者驱动测试浏览器；它们都不会进入用户脚本。
 
-模块包括 SiteAdapter、FrameManager、NativeDragController、ViewController、StoreZip、DownloadManager、ToolbarUI 和 Application。官方图标保存在 assets/lucide/；更改图标后运行 node tests/sync-icons.cjs 重新嵌入。
+模块包括 SiteAdapter、FrameManager、NativeDragController、ViewController、StoreZip、DownloadManager、CopyManager、ToolbarUI 和 Application。官方图标保存在 assets/lucide/；更改图标后运行 node tests/sync-icons.cjs 重新嵌入。
 
 ### 可选的真站验证
 

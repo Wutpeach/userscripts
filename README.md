@@ -6,7 +6,7 @@
 
 | 脚本名称 | 功能简介 | 当前版本 | 安装入口 | 详细说明 |
 | --- | --- | --- | --- | --- |
-| 懂车帝 360° 图片助手 | 原生预设视角切换；当前图片、四／八方向及完整 36 帧原始 WebP 导出 | 1.1.5 | [一键安装](https://raw.githubusercontent.com/Wutpeach/userscripts/main/scripts/dongchedi-360/dongchedi-360.user.js) | [使用说明](scripts/dongchedi-360/README.md) |
+| 懂车帝 360° 图片助手 | 原生预设视角切换；当前图片复制；当前图片、四／八方向及完整 36 帧原始 WebP 导出 | 1.2.0 | [一键安装](https://raw.githubusercontent.com/Wutpeach/userscripts/main/scripts/dongchedi-360/dongchedi-360.user.js) | [使用说明](scripts/dongchedi-360/README.md) |
 
 ## 安装
 

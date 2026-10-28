@@ -4,6 +4,7 @@
 
 - [compass](https://github.com/lucide-icons/lucide/blob/0.468.0/icons/compass.svg)：视角按钮。
 - [download](https://github.com/lucide-icons/lucide/blob/0.468.0/icons/download.svg)：下载按钮。
+- [copy](https://github.com/lucide-icons/lucide/blob/0.468.0/icons/copy.svg)：复制按钮。
 - [car-front](https://github.com/lucide-icons/lucide/blob/0.468.0/icons/car-front.svg)：九宫格中心装饰。
 - [chevron-down](https://github.com/lucide-icons/lucide/blob/0.468.0/icons/chevron-down.svg)：下拉标记。
 

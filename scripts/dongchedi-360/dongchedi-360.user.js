@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         懂车帝 360° 车辆图片提取助手
 // @namespace    https://github.com/dongchedi-360/userscript
-// @version      1.1.5
+// @version      1.2.0
 // @homepageURL  https://github.com/Wutpeach/userscripts/tree/main/scripts/dongchedi-360
 // @supportURL   https://github.com/Wutpeach/userscripts/issues
 // @updateURL    https://raw.githubusercontent.com/Wutpeach/userscripts/main/scripts/dongchedi-360/dongchedi-360.user.js
 // @downloadURL  https://raw.githubusercontent.com/Wutpeach/userscripts/main/scripts/dongchedi-360/dongchedi-360.user.js
-// @description  在原生全屏按钮右侧添加原生视角切换和原始 WebP 下载，支持四/八方向及完整 36 帧 ZIP。
+// @description  原生视角切换、当前图片复制及原始 WebP 下载，支持四/八方向及完整 36 帧 ZIP。
 // @match        https://www.dongchedi.com/*
 // @match        https://dongchedi.com/*
 // @run-at       document-idle
@@ -55,6 +55,7 @@
   const ICONS = Object.freeze({
     "view": "<path d=\"m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />",
     "download": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"7 10 12 15 17 10\" /> <line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\" />",
+    "copy": "<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\" /> <path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\" />",
     "car": "<path d=\"m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8\" /> <path d=\"M7 14h.01\" /> <path d=\"M17 14h.01\" /> <rect width=\"18\" height=\"8\" x=\"3\" y=\"10\" rx=\"2\" /> <path d=\"M5 18v2\" /> <path d=\"M19 18v2\" />",
     "chevron": "<path d=\"m6 9 6 6 6-6\" />"
 });
@@ -479,11 +480,66 @@
     }
   }
 
+  class CopyManager {
+    constructor(manager, views, requests, notify, onState) {
+      this.manager = manager; this.views = views; this.requests = requests; this.notify = notify; this.onState = onState; this.task = null;
+    }
+    cancel() { this.task?.controller.abort(); }
+    check(task) {
+      if (task.controller.signal.aborted) throw abortError();
+      if (!this.manager.valid() || this.manager.revision !== task.snapshot.revision) throw new Error('车型、颜色或页面已变化，请重新复制');
+    }
+    async prepare(task, url) {
+      const bytes = await this.requests.request(url, task.controller.signal);
+      this.check(task);
+      const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/webp' }));
+      const canvas = document.createElement('canvas');
+      try {
+        this.check(task);
+        canvas.width = bitmap.width; canvas.height = bitmap.height;
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('浏览器无法转换图片，请使用下载功能');
+        context.drawImage(bitmap, 0, 0);
+        const png = await new Promise((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('图片转换失败，请重试')), 'image/png'));
+        this.check(task);
+        return png;
+      } finally { bitmap.close(); canvas.width = canvas.height = 0; }
+    }
+    async start() {
+      if (this.task) return;
+      let task;
+      try {
+        if (!navigator.clipboard?.write || typeof ClipboardItem === 'undefined') throw new Error('浏览器不支持图片复制，请使用新版 Chrome / Edge 或下载图片');
+        const snapshot = this.manager.snapshot(); const index = this.views.current();
+        if (this.views.switching || index < 0) throw new Error('当前视角尚未稳定，请停止旋转后重试');
+        task = { controller: new AbortController(), snapshot }; this.task = task;
+        this.onState('copying');
+        const png = this.prepare(task, snapshot.urls[index]);
+        // 在点击的同步调用链中提交剪贴板写入，图片 Promise 稍后提供数据。
+        // 即使浏览器立即拒绝写入，也必须接住准备图片时的异步错误。
+        png.catch(() => {});
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
+        this.check(task);
+        this.onState('copied');
+      } catch (error) {
+        this.onState('idle');
+        if (!task?.controller.signal.aborted) {
+          const message = error?.name === 'NotAllowedError' ? '请允许浏览器访问剪贴板，保持页面在前台后再次点击复制' : errorText(error);
+          this.notify('复制未完成：' + message, true);
+        }
+      } finally {
+        task?.controller.abort();
+        if (this.task === task) this.task = null;
+      }
+    }
+  }
+
   const UI_CSS = [
     ':host{font-family:inherit;color:#30343b;box-sizing:border-box}*{box-sizing:border-box}',
     'button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid #3075d7;outline-offset:2px}button:disabled{cursor:wait;opacity:.5}',
     '.buttons{display:flex;align-items:center;gap:14px;height:100%;white-space:nowrap}',
     '.trigger{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:3px 0;border:0;background:none;color:var(--native-color,#555);font-size:var(--native-size,14px);line-height:1.5;border-radius:4px}',
+    '.copy-icon{display:inline-flex}.copy-label{min-width:4em;text-align:left}',
     'svg{width:17px;height:17px;flex:none}.chevron{font-size:10px;margin-left:1px;opacity:.65}.trigger[aria-expanded=true]{color:#2869bd}',
     '.panel{position:fixed;pointer-events:auto;visibility:hidden;width:264px;padding:10px;background:#fff;color:#30343b;border:1px solid #e7e9ed;border-radius:9px;box-shadow:0 6px 26px #16223b24;font:13px/1.5 system-ui,-apple-system,"Microsoft YaHei",sans-serif;max-height:calc(100vh - 16px);overflow:auto}',
     '.chevron svg{width:12px;height:12px}.panel[hidden]{display:none}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.view{border:0;border-radius:5px;background:#f6f7f9;color:#454b55;padding:10px 1px;font-size:12px}.view:hover,.view[aria-pressed=true]{color:#2365b5;background:#eaf2fc}',
@@ -494,8 +550,9 @@
   ].join('');
 
   class ToolbarUI {
-    constructor(manager, views, onDownload, onCancel) {
+    constructor(manager, views, onDownload, onCancel, onCopy) {
       this.manager = manager; this.views = views; this.onDownload = onDownload; this.onCancel = onCancel;
+      this.onCopy = onCopy; this.copyState = 'idle';
       this.host = null; this.openPanel = null; this.pinned = false; this.busy = false;
       this.lastMessage = ''; this.lastError = false; this.progressMessage = '';
       this.hoverTimer = null; this.closeTimer = null;
@@ -516,7 +573,7 @@
       this.host.style.cssText = 'display:inline-flex;align-items:center;align-self:center;flex-shrink:0;margin-left:14px;vertical-align:middle;';
       this.host.style.setProperty('--native-color', native.color); this.host.style.setProperty('--native-size', native.fontSize);
       this.shadow = this.host.attachShadow({ mode: 'open' });
-      this.shadow.innerHTML = '<style>' + UI_CSS + '</style><div class="buttons"><button type="button" class="trigger" data-panel="view" aria-haspopup="dialog" aria-expanded="false">' + icon('view') + '<span>视角</span><span class="chevron">' + icon('chevron') + '</span></button><button type="button" class="trigger" data-panel="download" aria-haspopup="dialog" aria-expanded="false">' + icon('download') + '<span>下载</span><span class="chevron">' + icon('chevron') + '</span></button></div>';
+      this.shadow.innerHTML = '<style>' + UI_CSS + '</style><div class="buttons"><button type="button" class="trigger" data-panel="view" aria-haspopup="dialog" aria-expanded="false">' + icon('view') + '<span>视角</span><span class="chevron">' + icon('chevron') + '</span></button><button type="button" class="trigger" data-panel="download" aria-haspopup="dialog" aria-expanded="false">' + icon('download') + '<span>下载</span><span class="chevron">' + icon('chevron') + '</span></button><button type="button" class="trigger" data-copy title="复制当前视角图片"><span class="copy-icon">' + icon('copy') + '</span><span class="copy-label" role="status" aria-live="polite">复制</span></button></div>';
       this.anchor.after(this.host);
       this.portal = document.createElement('div'); this.portal.dataset.dcd360Owned = 'panels';
       this.portal.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;z-index:2147483100;pointer-events:none;';
@@ -545,7 +602,10 @@
         button.append(title, subtitle); button.addEventListener('click', () => { this.pinned = true; this.onDownload(kind); }); options.append(button);
       });
       this.panelShadow.querySelector('.cancel').addEventListener('click', () => this.onCancel());
-      for (const button of this.shadow.querySelectorAll('.trigger')) {
+      this.shadow.querySelector('[data-copy]').addEventListener('click', (event) => {
+        event.stopPropagation(); this.close(); this.onCopy();
+      });
+      for (const button of this.shadow.querySelectorAll('.trigger[data-panel]')) {
         button.addEventListener('pointerenter', () => {
           clearTimeout(this.closeTimer); clearTimeout(this.hoverTimer);
           if (!this.pinned) this.hoverTimer = setTimeout(() => this.open(button.dataset.panel, false), 150);
@@ -576,13 +636,13 @@
       clearTimeout(this.hoverTimer); clearTimeout(this.closeTimer);
       this.openPanel = key; this.pinned = pinned;
       for (const panel of this.panelShadow.querySelectorAll('.panel')) panel.hidden = panel.dataset.panel !== key;
-      for (const button of this.shadow.querySelectorAll('.trigger')) button.setAttribute('aria-expanded', String(button.dataset.panel === key));
+      for (const button of this.shadow.querySelectorAll('.trigger[data-panel]')) button.setAttribute('aria-expanded', String(button.dataset.panel === key));
       this.position();
     }
     close() {
       clearTimeout(this.hoverTimer); clearTimeout(this.closeTimer); this.openPanel = null; this.pinned = false;
       this.panelShadow?.querySelectorAll('.panel').forEach((panel) => { panel.hidden = true; });
-      this.shadow?.querySelectorAll('.trigger').forEach((button) => button.setAttribute('aria-expanded', 'false'));
+      this.shadow?.querySelectorAll('.trigger[data-panel]').forEach((button) => button.setAttribute('aria-expanded', 'false'));
     }
     deferClose() {
       clearTimeout(this.hoverTimer); clearTimeout(this.closeTimer);
@@ -619,6 +679,23 @@
       if (subtitle) subtitle.textContent = this.views.switching ? '正在切换视角，请等待完成' : '原生视口当前显示的原始 WebP';
       const currentButton = this.panelShadow.querySelector('[data-download="current"]');
       if (currentButton) currentButton.disabled = this.busy || this.views.switching;
+      const copyButton = this.shadow?.querySelector('[data-copy]');
+      if (copyButton) {
+        copyButton.disabled = this.copyState === 'copying' || this.views.switching || index < 0;
+        copyButton.setAttribute('aria-busy', String(this.copyState === 'copying'));
+        copyButton.querySelector('.copy-label').textContent = this.copyState === 'copying' ? '复制中…' : this.copyState === 'copied' ? '已复制' : '复制';
+      }
+    }
+    setCopyState(state) {
+      clearTimeout(this.copyTimer); this.copyState = state; this.update();
+      if (state === 'copying' && this.lastMessage.startsWith('复制未完成：')) {
+        this.lastMessage = '';
+        if (this.panelShadow) {
+          this.panelShadow.querySelector('.feedback').hidden = true;
+          this.panelShadow.querySelector('.toast').hidden = true;
+        }
+      }
+      if (state === 'copied') this.copyTimer = setTimeout(() => { this.copyState = 'idle'; this.update(); }, 1600);
     }
     showMessage(text, isError = false, toast = true) {
       this.lastMessage = text; this.lastError = isError;
@@ -655,6 +732,7 @@
       this.position();
     }
     unmount() {
+      clearTimeout(this.copyTimer); if (this.copyState === 'copied') this.copyState = 'idle';
       this.close(); clearTimeout(this.toastTimer); this.resizeObserver.disconnect();
       document.removeEventListener('pointerdown', this.outside, true); document.removeEventListener('keydown', this.escape);
       window.removeEventListener('resize', this.reposition); window.removeEventListener('scroll', this.reposition, true);
@@ -668,7 +746,8 @@
       this.adapter = new SiteAdapter(); this.manager = new FrameManager(this.adapter);
       this.views = new ViewController(this.manager, (text, error) => this.ui.showMessage(text, error), () => this.ui.update());
       this.downloads = new DownloadManager(this.manager, this.views, (text, error) => this.ui.showMessage(text, error), (busy, message) => this.ui.setProgress(busy, message));
-      this.ui = new ToolbarUI(this.manager, this.views, (kind) => this.downloads.start(kind), () => this.downloads.cancel());
+      this.copies = new CopyManager(this.manager, this.views, this.downloads, (text, error) => this.ui.showMessage(text, error), (state) => this.ui.setCopyState(state));
+      this.ui = new ToolbarUI(this.manager, this.views, (kind) => this.downloads.start(kind), () => this.downloads.cancel(), () => this.copies.start());
       this.refreshTimer = null; this.frameTick = null; this.started = false; this.pending = null;
       this.observer = new MutationObserver((records) => this.mutations(records));
       this.routeChanged = () => {
@@ -692,6 +771,7 @@
       this.refresh();
     }
     invalidate(reason) {
+      this.copies.cancel();
       this.downloads.cancel(reason); this.views.close(); this.manager.update(null); this.ui.unmount();
     }
     mutations(records) {
@@ -742,7 +822,7 @@
       }
       this.pending = null;
       const changed = this.manager.update(candidate);
-      if (changed) { this.downloads.cancel('车型、颜色或视口已变化，下载任务已取消'); this.views.close(); }
+      if (changed) { this.copies.cancel(); this.downloads.cancel('车型、颜色或视口已变化，下载任务已取消'); this.views.close(); }
       if (candidate) { this.ui.mount(candidate); this.ui.update(); } else this.ui.unmount();
     }
     stop() {

@@ -5,7 +5,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const filename = path.join(root, 'dongchedi-360.user.js');
 let source = fs.readFileSync(filename, 'utf8');
-const icons = Object.fromEntries(Object.entries({ view: 'compass', download: 'download', car: 'car-front', chevron: 'chevron-down' }).map(([key, name]) => {
+const icons = Object.fromEntries(Object.entries({ view: 'compass', download: 'download', copy: 'copy', car: 'car-front', chevron: 'chevron-down' }).map(([key, name]) => {
   const svg = fs.readFileSync(path.join(root, 'assets/lucide', name + '.svg'), 'utf8');
   const content = svg.slice(svg.indexOf('>') + 1, svg.lastIndexOf('</svg>')).trim().replace(/\s+/g, ' ');
   if (!content || /script|href=|onload=/i.test(content)) throw new Error('Unexpected SVG content: ' + name);

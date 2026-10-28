@@ -109,6 +109,21 @@ async function fixture(t, options = {}) {
 const toolbar = (page) => page.locator('[data-dcd360-owned="toolbar"]');
 const panel = (page, key) => page.locator('[data-dcd360-owned="panels"]').locator('.panel[data-panel="' + key + '"]');
 const trigger = (page, key) => toolbar(page).locator('button[data-panel="' + key + '"]');
+const copyButton = (page) => toolbar(page).locator('[data-copy]');
+async function mockClipboard(page) {
+  await page.evaluate(() => {
+    mock.copied = []; mock.writes = 0; mock.clipboardError = false;
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
+      write: async (items) => {
+        mock.writes++; mock.writeActivated = navigator.userActivation.isActive;
+        mock.writeBeforeFetch = mock.active > 0;
+        if (mock.clipboardError) throw new DOMException('Permission denied', 'NotAllowedError');
+        const blob = await items[0].getType('image/png');
+        mock.copied.push({ type: blob.type, bytes: Array.from(new Uint8Array(await blob.arrayBuffer())) });
+      },
+    } });
+  });
+}
 async function available(page) {
   try { await toolbar(page).waitFor({ state: 'visible', timeout: 8000 }); }
   catch (error) {
@@ -156,7 +171,7 @@ test('完整序列：同容器、DOM 顺序、当前第 2 帧、HTTPS 与工具�
     adjacent: document.querySelector('.native-fullscreen').nextElementSibling?.dataset.dcd360Owned,
     controls: document.querySelector('[data-dcd360-owned="toolbar"]').shadowRoot.querySelectorAll('button').length,
   }));
-  assert.equal(state.count, 36); assert.equal(state.current, 1); assert.equal(state.adjacent, 'toolbar'); assert.equal(state.controls, 2);
+  assert.equal(state.count, 36); assert.equal(state.current, 1); assert.equal(state.adjacent, 'toolbar'); assert.equal(state.controls, 3);
   assert(state.urls.every((url, i) => url.startsWith('https://p3.dcarimg.com/') && url.includes('-' + String(i + 1).padStart(3, '0') + '~1200x0.webp')));
   await page.evaluate(() => { for (let i = 0; i < 15; i++) document.querySelector('#outside').append(document.createElement('span')); });
   await page.waitForTimeout(400); assert.equal(await toolbar(page).count(), 1);
@@ -237,6 +252,99 @@ test('面板 hover、跨间隙、点击固定、互斥、Esc 与外部点击', a
   await trigger(page, 'download').click(); assert(!(await panel(page, 'download').isVisible()));
   await trigger(page, 'view').click(); await page.keyboard.press('Escape'); assert(!(await panel(page, 'view').isVisible()));
   await trigger(page, 'view').click(); await page.locator('#outside').click(); assert(!(await panel(page, 'view').isVisible()));
+});
+
+test('复制按钮位于下载右侧，使用真实 PNG 剪贴板并保留点击帧、尺寸及 Alpha', async (t) => {
+  const page = await fixture(t);
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: baseURL });
+  assert.deepEqual((await toolbar(page).locator('button').allTextContents()).map((text) => text.trim()), ['视角', '下载', '复制']);
+  assert.equal(await copyButton(page).getAttribute('aria-haspopup'), null);
+  await page.evaluate(() => { mock.delay = 350; });
+  await menu(page, 'download'); await copyButton(page).click();
+  assert(!(await panel(page, 'download').isVisible()));
+  assert.equal((await copyButton(page).textContent()).trim(), '复制中…');
+  assert(await copyButton(page).isDisabled());
+  await page.evaluate(() => setNative(22));
+  await until(page, () => !__test.app.copies.task);
+  assert.equal((await copyButton(page).textContent()).trim(), '已复制');
+  assert(!(await page.locator('.toast').isVisible()));
+  const state = await page.evaluate(async (original) => {
+    const items = await navigator.clipboard.read();
+    const png = await items[0].getType('image/png');
+    const decode = async (blob) => {
+      const bitmap = await createImageBitmap(blob);
+      const canvas = document.createElement('canvas'); canvas.width = bitmap.width; canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(bitmap, 0, 0); bitmap.close();
+      return { width: canvas.width, height: canvas.height, pixels: Array.from(ctx.getImageData(0, 0, canvas.width, canvas.height).data) };
+    };
+    const webp = new Blob([Uint8Array.from(atob(original), (c) => c.charCodeAt(0))], { type: 'image/webp' });
+    return { type: png.type, actual: await decode(png), expected: await decode(webp), requests: mock.requests.map((r) => r.index), downloads: mock.saved.length };
+  }, images[1]);
+  assert.equal(state.type, 'image/png'); assert.equal(state.actual.width, 8); assert.equal(state.actual.height, 8);
+  assert.deepEqual(state.actual, state.expected); assert.equal(state.actual.pixels[3], 0);
+  assert(state.actual.pixels.some((value, i) => i % 4 === 3 && value > 0 && value < 255));
+  assert.deepEqual(state.requests, [1]); assert.equal(state.downloads, 0);
+  await until(page, () => __test.app.ui.copyState === 'idle');
+  assert.equal((await copyButton(page).textContent()).trim(), '复制'); assert(!(await copyButton(page).isDisabled()));
+});
+
+test('复制支持键盘及全屏，自动切换时禁用，重复点击只启动一次', async (t) => {
+  const page = await fixture(t); await mockClipboard(page);
+  await page.evaluate(() => { __test.app.views.select('rear'); });
+  assert(await copyButton(page).isDisabled());
+  await until(page, () => !__test.app.views.switching);
+  assert(!(await copyButton(page).isDisabled()));
+  await page.locator('.native-fullscreen').click(); await until(page, () => !!document.fullscreenElement);
+  await page.evaluate(() => { mock.delay = 300; });
+  await copyButton(page).focus(); await page.keyboard.press('Enter');
+  await page.evaluate(() => { __test.app.copies.start(); });
+  await until(page, () => !__test.app.copies.task);
+  assert.equal(await page.evaluate(() => mock.writes), 1);
+  assert.equal(await page.evaluate(() => mock.requests[0].index), 22);
+  assert(await page.evaluate(() => mock.writeActivated && mock.writeBeforeFetch));
+  assert.equal(await page.evaluate(() => mock.copied.length), 1);
+  await page.evaluate(() => document.exitFullscreen()); await until(page, () => !document.fullscreenElement);
+  await copyButton(page).click(); await until(page, () => !__test.app.copies.task);
+  assert.equal(await page.evaluate(() => mock.copied.length), 2);
+  const saved = await download(page, 'current'); assert.deepEqual(Buffer.from(saved.bytes), Buffer.from(images[22], 'base64'));
+});
+
+test('复制权限拒绝、API 缺失与图片损坏有失败反馈，随后可以重试', async (t) => {
+  for (const failure of ['permission', 'unsupported', 'invalid']) await t.test(failure, async (st) => {
+    const page = await fixture(st); await mockClipboard(page);
+    await page.evaluate((failure) => {
+      if (failure === 'permission') { mock.clipboardError = true; mock.delay = 300; }
+      if (failure === 'unsupported') Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+      if (failure === 'invalid') mock.invalid = [1];
+    }, failure);
+    await copyButton(page).click(); await until(page, () => !__test.app.copies.task);
+    assert.match(await page.locator('.toast').textContent(), /复制未完成/);
+    if (failure === 'permission') assert.match(await page.locator('.toast').textContent(), /允许浏览器访问剪贴板/);
+    if (failure === 'unsupported') assert.equal(await page.evaluate(() => mock.requests.length), 0);
+    assert.equal(await page.evaluate(() => mock.copied.length), 0);
+    assert.equal(await page.evaluate(() => mock.active), 0);
+    assert(!(await copyButton(page).isDisabled()));
+    await mockClipboard(page); await page.evaluate(() => { mock.invalid = []; mock.delay = 10; });
+    await copyButton(page).click(); await until(page, () => !__test.app.copies.task);
+    assert.equal(await page.evaluate(() => mock.copied.length), 1);
+  });
+});
+
+test('复制中车型颜色、路由变化或离开页面会中止请求，不写入旧图片', async (t) => {
+  for (const change of ['color', 'route', 'stop']) await t.test(change, async (st) => {
+    const page = await fixture(st); await mockClipboard(page);
+    await page.evaluate(() => { mock.delay = 600; });
+    await copyButton(page).click();
+    await page.evaluate((change) => {
+      if (change === 'color') document.querySelectorAll('.root-wrapper img').forEach((img) => { img.src = img.src.replace('blue-', 'red-'); });
+      if (change === 'route') history.pushState({}, '', '/auto/series/999');
+      if (change === 'stop') __test.app.stop();
+    }, change);
+    await until(page, () => !__test.app.copies.task);
+    assert.equal(await page.evaluate(() => mock.copied.length), 0);
+    assert.equal(await page.evaluate(() => mock.active), 0);
+    assert.equal(await page.evaluate(() => __test.app.ui.copyState), 'idle');
+  });
 });
 
 test('四种下载：字节、Alpha 输入、名称、顺序、ZIP STORE、最多 4 并发', async (t) => {
